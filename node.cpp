@@ -437,9 +437,9 @@ void check_for_expired_routes()
 
     for (int i = 0; i < FORWARDING_TABLE.num_entries; i++)
     {
-        if ( (forwarding_entries[i].interface_id != -1) & ((int) time(NULL) - (int) forwarding_entries[i].last_updated > 12))
+        if ((FORWARDING_TABLE.forwarding_entries[i].interface_id != -1) && ((int) time(NULL) - (int) FORWARDING_TABLE.forwarding_entries[i].last_updated > 12))
         {
-            forwarding_entries[i].cost = numeric_limits<int>::max();
+            FORWARDING_TABLE.forwarding_entries[i].cost = numeric_limits<int>::max();
         }
     }
 }
@@ -479,7 +479,7 @@ void choose_command(char *command)
         char *msg = strtok(NULL, "");
         int msg_size = strlen(msg);
         int TTL = MAX_TTL;
-        int protocol = 0;
+        int protocol = TEST_PROTOCOL_VAL;
         send_packet(dest_addr, msg, msg_size, TTL, protocol);
     }
 }
@@ -546,7 +546,6 @@ int main(int argc, char **argv)
 
     char command_line[1500];
 
-    // CODE ERRORS HERE
     request_routes();
 
     while (1)
