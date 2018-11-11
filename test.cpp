@@ -30,30 +30,31 @@ int main()
 
 
 
-  thisNodeSocket = strtok(line1, "\n");
-  printf("[IP-address]:[port] %s\n", thisNodeSocket);
+  // thisNodeSocket = strtok(line1, "\n");
+  // printf("[IP-address]:[port] %s\n", thisNodeSocket);
 
-  remoteNodeSocket = strtok(line2, " ");
-  printf("[IP-address-of-remote-node]:[port-of-remote-node] %s\n", remoteNodeSocket);
+  // remoteNodeSocket = strtok(line2, " ");
+  // printf("[IP-address-of-remote-node]:[port-of-remote-node] %s\n", remoteNodeSocket);
 
-  thisInterfaceVIP = strtok(NULL, " ");
-  printf("[VIP of my interface] %s\n", thisInterfaceVIP);
+  // thisInterfaceVIP = strtok(NULL, " ");
+  // printf("[VIP of my interface] %s\n", thisInterfaceVIP);
 
-  remoteInterfaceVIP = strtok(NULL, " ");
-  printf("[VIP of the remote node's interface] %s\n", remoteInterfaceVIP);
+  // remoteInterfaceVIP = strtok(NULL, " ");
+  // printf("[VIP of the remote node's interface] %s\n", remoteInterfaceVIP);
 
-  cost = atoi(strtok(NULL, " "));
-  printf("[Cost] %i\n", cost);
+  // cost = atoi(strtok(NULL, " "));
+  // printf("[Cost] %i\n", cost);
 
-    char *myIP = strtok(thisNodeSocket, ":");
+  //   char *myIP = strtok(thisNodeSocket, ":");
 
-    char localhost[10] = "127.0.0.1";
+  //   char localhost[10] = "127.0.0.1";
 
-    printf("%s\n", myIP);
-    if (strcmp(myIP, "localhost") == 0) {
-        myIP = localhost;
-    }
-    printf("%s\n", myIP);
+  //   printf("%s\n", myIP);
+  //   if (strcmp(myIP, "localhost") == 0) {
+  //       myIP = localhost;
+  //   }
+  //   printf("%s\n", myIP);
+  printf("%i\n", numeric_limits<int>::max());
 
 
   fclose(fp);

@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <fstream>
+#include <limits>
 #include "ipsum.h"
 
 using namespace std;
@@ -185,6 +186,9 @@ forwarding_entry_t *get_forwarding_entry_by_dest_addr(char *dest_addr)
 
     for (int i = 0; i < FORWARDING_TABLE.num_entries; i++)
     {
+        printf("left%s\n", FORWARDING_TABLE.forwarding_entries[i].dest_addr);
+        printf("right%s\n", dest_addr);
+
         if (strcmp(FORWARDING_TABLE.forwarding_entries[i].dest_addr, dest_addr) == 0)
         {
             forwarding_entry_t *f_entry = &FORWARDING_TABLE.forwarding_entries[i];
@@ -193,6 +197,7 @@ forwarding_entry_t *get_forwarding_entry_by_dest_addr(char *dest_addr)
     }
     // IF WE DON'T FIND THE NEXT BEST HOP THEN DO SOMETHING
     //return NULL;
+
     forwarding_entry_t * test = &FORWARDING_TABLE.forwarding_entries[0];
     return test;
 }
@@ -322,9 +327,9 @@ void send_packet(char *dest_addr, char *msg, int msg_size, int TTL, int protocol
 
     ip_header.id = rand();
     ip_header.saddr = inet_addr(interface->my_vip);
+
     // FORWARDING ENTRY DESTINATION ADDRESS
     // THIS MAY NOT WORK
-
     forwarding_entry_t *f_entry = get_forwarding_entry_by_dest_addr(dest_addr);
     ip_header.daddr = inet_addr(f_entry->dest_addr);
 
@@ -429,11 +434,17 @@ void request_routes()
 
 void check_for_expired_routes()
 {
-
     // TODO --- 8
     // Periodically check the routes
-    // forwarding_entries[i].interface_id != -1 & ((int) time(NULL) - (int) forwarding_entries[i].last_updated > 12)
     // You should do something to mark it invalid
+
+    for (int i = 0; i < FORWARDING_TABLE.num_entries; i++)
+    {
+        if ( (forwarding_entries[i].interface_id != -1) & ((int) time(NULL) - (int) forwarding_entries[i].last_updated > 12))
+        {
+            forwarding_entries[i].cost = numeric_limits<int>::max();
+        }
+    }
 }
 
 void choose_command(char *command)
