@@ -44,7 +44,6 @@ struct iphdr
     u_int16_t check;
     u_int32_t saddr;
     u_int32_t daddr;
-    /*The options start here. */
 };
 
 typedef struct interface
@@ -52,8 +51,6 @@ typedef struct interface
     int interface_id;
     char my_ip[IP_ADDR_LEN];
     uint16_t my_port;
-    //char other_ip[IP_ADDR_LEN];
-    //uint16_t other_port;
     char my_vip[IP_ADDR_LEN];
     char other_vip[IP_ADDR_LEN];
     int mtu_size;
@@ -113,7 +110,7 @@ void initialize_interface(interface_t *interface)
     }
 }
 
-//Debugging utility
+// Debugging utility
 void print_mem(char const *vp, size_t n)
 {
     char const *p = vp;
@@ -572,7 +569,7 @@ int main(int argc, char **argv)
         if (FD_ISSET(listen_socket, running_ptr))
         {
             // data ready on the read socket
-            //TODO: receive data and pass directly to ALL interfaces
+            // TODO: receive data and pass directly to ALL interfaces
             // Only an up and directly attached interface (by source port) should act on this and call handle_packet
             handle_packet(listen_socket);
         }
@@ -580,8 +577,6 @@ int main(int argc, char **argv)
         if (FD_ISSET(STDIN_FILENO, running_ptr))
         {
             scanf("%s", command_line);
-            //fgets(command_line, 100, stdin);
-            //printf( "\n%s", commandLine);
             choose_command(command_line);
             fflush(STDIN_FILENO);
         }
@@ -590,7 +585,6 @@ int main(int argc, char **argv)
         {
             request_routes();
             time(&last_updated);
-            //printf("been 5 seconds\n");
         }
         check_for_expired_routes();
     }
