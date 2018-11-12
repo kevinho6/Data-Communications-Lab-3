@@ -183,20 +183,13 @@ forwarding_entry_t *get_forwarding_entry_by_dest_addr(char *dest_addr)
 
     for (int i = 0; i < FORWARDING_TABLE.num_entries; i++)
     {
-        printf("left%s\n", FORWARDING_TABLE.forwarding_entries[i].dest_addr);
-        printf("right%s\n", dest_addr);
-
         if (strcmp(FORWARDING_TABLE.forwarding_entries[i].dest_addr, dest_addr) == 0)
         {
             forwarding_entry_t *f_entry = &FORWARDING_TABLE.forwarding_entries[i];
             return f_entry;
         }
     }
-    // IF WE DON'T FIND THE NEXT BEST HOP THEN DO SOMETHING
-    //return NULL;
-
-    forwarding_entry_t * test = &FORWARDING_TABLE.forwarding_entries[0];
-    return test;
+    return NULL;
 }
 
 /**
@@ -233,8 +226,6 @@ void update_forwarding_entry(char *src_addr, char *next_addr, char *dest_addr, i
             break;
         }
     }
-
-    // NOW BROADCAST THOSE UPDATES TO THE NEIGHBORS
 }
 
 void build_tables(FILE *fp)
@@ -260,16 +251,23 @@ void build_tables(FILE *fp)
     uint16_t remotePort = atoi(strtok(NULL, ""));
 
     char localhost[10] = "127.0.0.1";
-    if (strcmp(myIP, "localhost") == 0) {
+    if (strcmp(myIP, "localhost") == 0)
+    {
         myIP = localhost;
     }
-    if (strcmp(remoteIP, "localhost") == 0) {
+    if (strcmp(remoteIP, "localhost") == 0)
+    {
         remoteIP = localhost;
     }
 
     forwarding_entry_t newForwardingEntry;
-    strcpy(newForwardingEntry.entry_src_addr, myIP);
-    strcpy(newForwardingEntry.dest_addr, remoteIP);
+
+    // strcpy(newForwardingEntry.entry_src_addr, myIP);
+    strcpy(newForwardingEntry.entry_src_addr, thisInterfaceVIP);
+
+    // strcpy(newForwardingEntry.dest_addr, remoteIP);
+    strcpy(newForwardingEntry.dest_addr, remoteInterfaceVIP);
+
     newForwardingEntry.interface_id = IFCONFIG_TABLE.num_entries;
     newForwardingEntry.cost = cost;
     newForwardingEntry.last_updated = time(NULL);
@@ -320,13 +318,11 @@ void send_packet(char *dest_addr, char *msg, int msg_size, int TTL, int protocol
 
     interface_t *interface = get_interface_by_dest_addr(dest_addr);
     struct iphdr ip_header;
-    struct iphdr * ip_header_ptr = &ip_header;
+    struct iphdr *ip_header_ptr = &ip_header;
 
     ip_header.id = rand();
     ip_header.saddr = inet_addr(interface->my_vip);
 
-    // FORWARDING ENTRY DESTINATION ADDRESS
-    // THIS MAY NOT WORK
     forwarding_entry_t *f_entry = get_forwarding_entry_by_dest_addr(dest_addr);
     ip_header.daddr = inet_addr(f_entry->dest_addr);
 
@@ -403,6 +399,17 @@ void send_forwarding_update(char *dest_addr)
     // Sends an RIP update to a specified destination
     // Call a corresponding function
     // send_packet();
+
+    for (int i = 0; i < FORWARDING_TABLE.num_entries; i++)
+    {
+        if (strcmp(FORWARDING_TABLE.forwarding_entries[i].dest_addr, dest_addr) == 0)
+        {
+            rip_packet_t *RIP_packet = (rip_packet_t *)malloc(sizeof(rip_packet_t *));
+            RIP_packet->command = 1;
+            RIP_packet->num_entries = 0;
+            send_packet(dest_addr, (char *)RIP_packet, sizeof(rip_packet_t), MAX_TTL, RIP_PROTOCOL_VAL);
+        }
+    }
 }
 
 void activate_RIP_update()
@@ -437,7 +444,7 @@ void check_for_expired_routes()
 
     for (int i = 0; i < FORWARDING_TABLE.num_entries; i++)
     {
-        if ((FORWARDING_TABLE.forwarding_entries[i].interface_id != -1) && ((int) time(NULL) - (int) FORWARDING_TABLE.forwarding_entries[i].last_updated > 12))
+        if ((FORWARDING_TABLE.forwarding_entries[i].interface_id != -1) && ((int)time(NULL) - (int)FORWARDING_TABLE.forwarding_entries[i].last_updated > 12))
         {
             FORWARDING_TABLE.forwarding_entries[i].cost = numeric_limits<int>::max();
         }
@@ -520,6 +527,17 @@ void handle_packet(int listen_socket)
     // The most important and comprehensive
     // Think carefully and completely
     // You should call multiple functions listed above
+
+    // inet_ntop(AF_INET, &(recv_header->saddr), src_addr, INET_ADDRSTRLEN)
+
+    // if(received_ip_checksum != calculated_ip_checksum){
+    //     printf("Broken checksum, dropping packet\n");
+    //     return;
+    // }
+    // if(recv_header->ttl <= 0) {
+    //     printf("TTL surpassed, dropping packet\n");
+    //     return;
+    // }
 }
 
 int main(int argc, char **argv)
